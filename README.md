@@ -34,7 +34,7 @@ cp ~/.ssh/id_rsa.pub ./identity.pub
 
 ```
 docker build -t tunnel .
-docker run --name=tunnel -p 22 tunnel
+docker run -d --name=tunnel -p 22 tunnel
 ```
 
 
