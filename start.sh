@@ -5,4 +5,4 @@ trap '{ ssh $2 "docker stop tunnel" ; exit 1; }' INT
 
 ssh $2 'docker start tunnel'
 
-ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=300 -o ConnectTimeout=5 -g -R 8080:localhost:$1 -p 22 $2
+ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=300 -o ConnectTimeout=5 -g -R 8080:localhost:$1 -p 22 tunnel@$2
