@@ -5,55 +5,24 @@ Simple HTTPS tunnel setup using SSH forwarding
 ## On the server
 
 * Choose a subdomain on a host you manage e.g. dev.example.com
-
-```
-docker build -t tunnel .
-docker run -d -e NGINX_HOST=dev.example.com --name=tunnel -p 80:80 -p 22 tunnel-nginx
-docker exec -it tunnel certbot -n --register-unsafely-without-email --nginx -d dev.example.com
-```
-
-# On first run, get some certs
-
-
-
-### Setup Nginx
-
-
-
-
-* Use certbot to create SSL certs from LetsEncrypt
-
-```
-certbot --nginx -d dev.example.com
-```
-
-* Copy nginx config, customise domain e.g.
-
-```
-cp ./nginx.example.conf /etc/nginx/sites-available/dev.example.com.conf
-ln -s /etc/nginx/sites-available/dev.example.com.conf /etc/nginx/sites-enabled/dev.example.com.conf
-service nginx restart
-```
-
-### Setup Reverse tunnel Docker
-
 * Copy public key in to this project
 
 ```
 cp ~/.ssh/id_rsa.pub ./identity.pub
 ```
 
-* Build docker image and run container
+* Build image, run container, get certs
 
 ```
 docker build -t tunnel .
-docker run -d --name=tunnel -p 22 tunnel
+docker run -d -e NGINX_HOST=dev.example.com --name=tunnel -p 443:443 -p 80:80 -p 2222:22 tunnel
+# On first run, get some certs
+docker exec -it tunnel certbot --register-unsafely-without-email --nginx -d dev.example.com
 ```
 
-
-## On the host
+## On the client
 
 ```
 python -m SimpleHTTPServer 3000
-./start.sh 3000 root@dev.example.com
+./start.sh 3000 dev.example.com
 ```
