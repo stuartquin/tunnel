@@ -6,7 +6,20 @@ Simple HTTPS tunnel setup using SSH forwarding
 
 * Choose a subdomain on a host you manage e.g. dev.example.com
 
+```
+docker build -t tunnel .
+docker run -d -e NGINX_HOST=dev.example.com --name=tunnel -p 80:80 -p 22 tunnel-nginx
+docker exec -it tunnel certbot -n --register-unsafely-without-email --nginx -d dev.example.com
+```
+
+# On first run, get some certs
+
+
+
 ### Setup Nginx
+
+
+
 
 * Use certbot to create SSL certs from LetsEncrypt
 

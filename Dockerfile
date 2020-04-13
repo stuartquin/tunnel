@@ -1,20 +1,29 @@
-FROM alpine:latest
+FROM nginx:latest
 
+# This is the port we're going to reverse tunnel
 EXPOSE 8080
 
+# This is the normal SSHd port (this gets mapped to 
+#  external port 2222 in the docker-compose.yml file)
 EXPOSE 22
 
-RUN apk --update add openssh \
-  && sed -i 's/#GatewayPorts no.*/GatewayPorts\ yes/' /etc/ssh/sshd_config \
-  && rm -rf /var/cache/apk/*
+RUN apt update \
+  && apt install -y openssh-server wget \
+  && sed -i 's/#GatewayPorts no.*/GatewayPorts\ yes/' /etc/ssh/sshd_config
 
-RUN \
-  passwd -d root && \
-  adduser -D -s /bin/ash tunnel && \
-  passwd -u tunnel && \
-  chown -R tunnel:tunnel /home/tunnel && \
-  ssh-keygen -A
+RUN apt install -y certbot python-certbot-nginx
+
+RUN passwd -d root \
+  && useradd tunnel \
+  && passwd -d tunnel \
+  && mkdir /home/tunnel \
+  && chown -R tunnel:tunnel /home/tunnel \
+  && ssh-keygen -A
 
 COPY identity.pub /home/tunnel/.ssh/authorized_keys
 
-CMD /usr/sbin/sshd -D
+COPY nginx.example.conf /home/tunnel/nginx.conf
+
+CMD service ssh start \
+  && /bin/bash -c "envsubst < /home/tunnel/nginx.conf > /etc/nginx/conf.d/default.conf" \
+  && nginx -g "daemon off;"
