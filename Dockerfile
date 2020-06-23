@@ -2,9 +2,6 @@ FROM nginx:latest
 
 # This is the port we're going to reverse tunnel
 EXPOSE 8080
-
-# This is the normal SSHd port (this gets mapped to 
-#  external port 2222 in the docker-compose.yml file)
 EXPOSE 22
 
 RUN apt update \
